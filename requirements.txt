@@ -4,8 +4,8 @@ uvicorn==0.24.0
 nest_asyncio==1.5.8
 
 # Solana blockchain
-solana==0.30.2
-solders==0.18.1
+solana==0.36.7
+solders==0.26.0
 base58==2.1.1
 
 # Async HTTP
