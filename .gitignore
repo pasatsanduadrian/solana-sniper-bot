@@ -1,0 +1,72 @@
+_pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+
+# Security - NEVER commit these!
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+private_key.txt
+wallet_secret.txt
+
+# Logs
+logs/
+*.log
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter/Colab
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Trading specific
+positions.json
+trades_history.csv
+bot_state.json
