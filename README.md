@@ -39,6 +39,16 @@ Bot automat pentru trading de meme-coins pe Solana cu strategie de sniping pentr
 
 În notebook-ul Colab, urmează pașii din interfața interactivă.
 
+### 🔬 Testare rapidă Moralis API
+
+Pentru a verifica dacă cheia Moralis funcționează, rulează scriptul
+`test_moralis_api.py` sau deschide notebook-ul dedicat:
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/YOUR_USERNAME/solana-sniper-bot/blob/main/notebooks/moralis_api_test.ipynb)
+
+Setează variabila `MORALIS_KEY` în mediul Colab pentru a putea accesa
+endpoint-urile Moralis.
+
 ## ⚠️ Disclaimer
 
 **AVERTISMENT**: Trading-ul de crypto implică **RISC EXTREM DE MARE**.
