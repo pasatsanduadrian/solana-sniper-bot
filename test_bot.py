@@ -3,11 +3,14 @@
 import asyncio
 import os
 import sys
+import pytest
 from datetime import datetime
 from pathlib import Path
 
 # Adaugă directorul rădăcină la Python path
 sys.path.insert(0, str(Path(__file__).parent))
+
+pytestmark = pytest.mark.asyncio
 
 from src.bot import FeedAggregator, TradingEngine, setup_logging
 from src.bot.config import settings

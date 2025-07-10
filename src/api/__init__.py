@@ -1,5 +1,9 @@
 """API wrappers used by the project."""
 
-from .moralis import MoralisAPI
+"""API wrappers used by the project."""
 
-__all__ = ["MoralisAPI"]
+from .moralis import MoralisAPI
+from .helius import HeliusAPI
+from .dexscreener import DexScreenerAPI
+
+__all__ = ["MoralisAPI", "HeliusAPI", "DexScreenerAPI"]
