@@ -11,6 +11,7 @@ from solders.signature import Signature
 
 from src.bot.feeds import FeedAggregator, TokenData
 from src.bot.config import settings
+from src.bot.risk import RiskManager
 
 logger = logging.getLogger("bot.trading")
 
@@ -85,6 +86,7 @@ class TradingEngine:
         self.positions: Dict[str, Position] = {}
         self.total_invested = 0.0
         self.total_realized_pnl = 0.0
+        self.risk = RiskManager()
         
         # Trading parameters
         self.position_size = 10.0  # 10 USDC per position
@@ -130,10 +132,13 @@ class TradingEngine:
         """Check if any position should be closed."""
         for address, position in list(self.positions.items()):
             pnl_percent = position.pnl_percent
-            
-            # Check take profit or stop loss
-            if pnl_percent >= self.take_profit or pnl_percent <= self.stop_loss:
-                logger.info(f"Closing position {position.token.symbol}: {pnl_percent:.2f}%")
+
+            # Check take profit or stop loss via risk manager
+            if (pnl_percent >= self.take_profit or
+                self.risk.stop_loss_triggered(position.entry_price, position.token.price)):
+                logger.info(
+                    f"Closing position {position.token.symbol}: {pnl_percent:.2f}%"
+                )
                 await self._close_position(address)
                 
     async def _find_entries(self) -> None:
@@ -162,10 +167,14 @@ class TradingEngine:
         if not settings.public_key:
             logger.error("No wallet configured")
             return
-            
+
         try:
+            # Determine position size based on risk
+            risk_score = self.risk.assess_token_risk(token)
+            pos_size = self.risk.position_size(risk_score)
+
             # Convert USDC amount to smallest unit (6 decimals)
-            amount_lamports = int(self.position_size * 1_000_000)
+            amount_lamports = int(pos_size * 1_000_000)
             
             # Get quote
             quote = await jup_quote(self.USDC_MINT, token.address, amount_lamports)
@@ -184,12 +193,12 @@ class TradingEngine:
             # tx_sig = await self._send_transaction(swap_data)
             
             # Create position
-            position = Position(token, self.position_size, out_amount)
+            position = Position(token, pos_size, out_amount)
             # position.tx_signature = tx_sig
             self.positions[token.address] = position
-            self.total_invested += self.position_size
-            
-            logger.info(f"Opened position: {self.position_size} USDC -> {out_amount} {token.symbol}")
+            self.total_invested += pos_size
+
+            logger.info(f"Opened position: {pos_size} USDC -> {out_amount} {token.symbol}")
             
         except Exception as e:
             logger.error(f"Failed to open position: {e}")
