@@ -34,7 +34,8 @@ def launch_dashboard(share: bool = False) -> None:
             lines.append(f"{i}. {token.symbol} ({token.address[:8]}...)")
             lines.append(f"   Price: ${token.price:.6f} | Change 5m: {token.price_change_5m:+.2f}%")
             lines.append(f"   Volume 5m: ${token.volume_5m:,.0f} | Liquidity: ${token.liquidity:,.0f}")
-            lines.append(f"   Score: {token.score:.1f}/100\n")
+            opp = f" | Opportunity: {token.opportunity}" if token.opportunity else ""
+            lines.append(f"   Score: {token.score:.1f}/100{opp}\n")
             
         return "\n".join(lines)
     

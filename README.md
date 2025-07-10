@@ -11,6 +11,7 @@ Bot automat pentru trading de meme-coins pe Solana cu strategie de sniping pentr
 - **🤖 Trading Automat**: Entry/exit bazat pe score și parametri configurabili
 - **💰 Management Poziții**: Take profit, stop loss, position sizing
 - **📈 Dashboard Live**: Interfață Gradio pentru monitorizare în timp real
+- **🚀 Detecție 3x/5x/10x**: Heuristici simple pentru identificarea pump-urilor
 - **🔒 Wallet Secure**: Suport pentru Phantom și alte wallet-uri Solana
 
 ## 🚀 Quick Start în Google Colab
@@ -48,6 +49,34 @@ Pentru a verifica dacă cheia Moralis funcționează, rulează scriptul
 
 Setează variabila `MORALIS_KEY` în mediul Colab pentru a putea accesa
 endpoint-urile Moralis.
+
+### 🛠 Integrare API-uri
+
+Proiectul folosește trei surse principale de date:
+
+1. **DEX Screener** – căutare perechi noi pe Solana
+   ```python
+   from src.api.dexscreener import DexScreenerAPI
+   api = DexScreenerAPI()
+   pairs = await api.search_tokens("solana")
+   ```
+
+2. **Moralis** – prețuri și metadata token
+   ```python
+   from src.api.moralis import MoralisAPI
+   api = MoralisAPI("YOUR_MORALIS_KEY")
+   price = await api.get_token_price("mainnet", token_address)
+   ```
+
+3. **Helius** – detalii suplimentare despre holderi
+   ```python
+   from src.api.helius import HeliusAPI
+   api = HeliusAPI("YOUR_HELIUS_KEY")
+   holders = await api.get_token_holders(token_address)
+   ```
+
+Aceste module pot fi testate rapid în Google Colab folosind notebook-ul
+`notebooks/sniper_colab.ipynb`.
 
 ## ⚠️ Disclaimer
 
