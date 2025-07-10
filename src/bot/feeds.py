@@ -9,6 +9,8 @@ from typing import Dict, Optional
 import logging
 import os
 
+from src.api.helius import HeliusAPI
+
 logger = logging.getLogger("bot.feeds")
 
 @dataclass
@@ -76,6 +78,7 @@ class FeedAggregator:
         self.running = False
         self.helius_key = os.getenv("HELIUS_KEY", "demo")
         self.moralis_key = os.getenv("MORALIS_KEY")
+        self.helius = HeliusAPI(self.helius_key)
         
     async def start(self) -> None:
         self.session = aiohttp.ClientSession()
@@ -87,6 +90,7 @@ class FeedAggregator:
         self.running = False
         if self.session:
             await self.session.close()
+        await self.helius.close()
         logger.info("Feed aggregator stopped")
         
     async def _fetch_loop(self) -> None:
@@ -109,12 +113,16 @@ class FeedAggregator:
         if self.moralis_key:
             for address in list(self.tokens.keys())[:5]:  # Rate limit: 5 at a time
                 tasks.append(self._update_token_moralis(address))
+                tasks.append(self._update_token_helius(address))
                 
         await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         # Calculate scores for all tokens
         for token in self.tokens.values():
             token.calculate_score()
+
+        # Extra pump detection
+        self._detect_pump_opportunities()
             
     async def _fetch_dex_screener(self) -> None:
         """Fetch new tokens from DEX Screener."""
@@ -208,6 +216,27 @@ class FeedAggregator:
                 self.tokens[address].last_updated = datetime.utcnow()
         except Exception as e:
             logger.debug(f"Moralis update error for {address}: {e}")
+
+    async def _update_token_helius(self, address: str) -> None:
+        """Update token with Helius holder data."""
+        try:
+            data = await self.helius.get_token_holders(address)
+            if address in self.tokens and isinstance(data, dict):
+                holders = data.get("total", 0)
+                if holders:
+                    self.tokens[address].holders = int(holders)
+        except Exception as e:
+            logger.debug(f"Helius update error for {address}: {e}")
+
+    def _detect_pump_opportunities(self) -> None:
+        """Add bonus score for tokens that look like pumps."""
+        for token in self.tokens.values():
+            if (
+                token.volume_5m > 50000
+                and token.liquidity > 10000
+                and token.price_change_5m > 5
+            ):
+                token.score += 10
             
     def get_top_tokens(self, limit: int = 10) -> list[TokenData]:
         """Get top tokens by score."""
